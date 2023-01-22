@@ -107,8 +107,6 @@ def endAuction():
     account = get_account(0)
     auction_id = int(input("Digit the ID of the auction you want to finalize:"))
     nft_auction_market = NFTAuctionMarket.at(contract)
-    chain.sleep(900000)  # va tolto
-    chain.mine()
     nft_auction_market.endAuction(auction_id, {"from": account})
     print("Auction succesfully ended!")
 
@@ -117,8 +115,6 @@ def withdraw_not_finalized():
     account = get_account(4)
     auction_id = int(input("Digit the ID of the auction you want to finalize:"))
     nft_auction_market = NFTAuctionMarket.at(contract)
-    chain.sleep(900000)  # va tolto
-    chain.mine()
     nft_auction_market.withdrawNotFinalized(auction_id, {"from": account})
     print(
         "You have succesfully withdraw your offer since the auctioner has not finalized the auction withing 24 hours!!"
