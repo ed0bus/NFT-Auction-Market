@@ -1,3 +1,5 @@
+This project has been made by Edoardo Bussani.
+
 ## Table of contents
 * [General info](#general-info)
 * [Technologies](#technologies)
