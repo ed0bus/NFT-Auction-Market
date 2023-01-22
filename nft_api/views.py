@@ -21,11 +21,11 @@ alchemy_url = "https://eth-goerli.g.alchemy.com/v2/ZYFR3t4Vvlbkut-n9ZV4762wPxi4f
 w3 = Web3(Web3.HTTPProvider(alchemy_url))
 
 with open(
-    "/Users/edoardobussani/Desktop/coding projects/smart_contracts/progetto_django_nft/brownie_NFT/build/contracts/NFTAuctionMarket.json"
+    "INSERT YOUR CONTRACT.json HERE" #look into the build folder of the nft_market_brownie. Notice you'll have to compile and deploy the contract first.
 ) as f:
     auction_contract = json.load(f)
     abi = auction_contract["abi"]
-    address = w3.toChecksumAddress("0x73cdbd04DB9888571dAC0a6b18c6F6501889aD55")
+    address = w3.toChecksumAddress("INSERT THE DEPLOYED CONTRACT ADDRESS")
 
 contract = w3.eth.contract(
     address=address,

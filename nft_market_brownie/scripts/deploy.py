@@ -15,7 +15,7 @@ chain = Chain()
 
 #you can insert a contract directly deployed by you, this is just a sample of an already deployed contract
 
-contract = "0x73cdbd04DB9888571dAC0a6b18c6F6501889aD55"
+contract = "INSERT CONTRACT ADDRESS HERE"
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["development", "ganache-prova"]
 
 
