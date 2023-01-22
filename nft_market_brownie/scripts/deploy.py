@@ -126,4 +126,4 @@ def withdraw_not_finalized():
 
 
 def main():
-    mint_nft()
+    deploy_contract()
