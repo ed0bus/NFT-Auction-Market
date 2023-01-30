@@ -10,7 +10,7 @@ contract NFTAuctionMarket is ERC721URIStorage {
     uint256 public auctionID; //if AuctionID > 1: created_auctions = AuctionID -1
     uint256 public tokenCounter; //track NFT counter
     mapping(address => uint256) public biddersToOverbiddenBids;
-    uint256[] public onAuctionNFTs; //track nft being auctioned
+    mapping(uint256 => bool) public onAuctionNFTs;//track nft being auctioned
 
     //define events
     event auctionObjectCreation(address _from, uint256 _nftId, string _tokenURI); 
@@ -69,12 +69,9 @@ contract NFTAuctionMarket is ERC721URIStorage {
         );
         
         // Check if the NFT is already being auctioned
-        for (uint256 i = 0; i < onAuctionNFTs.length; i++) {
-            if (onAuctionNFTs[i] == _nftId) {
-               revert("The Nft is already being auctioned");
-            }
-        }
+        require(onAuctionNFTs[_nftId] == false, "The Nft is already being auctioned");
 
+            
         // Create a new auction
         auctions[auctionID] = Auction(
             _nftId,
@@ -86,7 +83,7 @@ contract NFTAuctionMarket is ERC721URIStorage {
             false, // Auction has not ended yet
             true // Auction has started
         );
-        onAuctionNFTs.push(_nftId); //selected nft is now being auctioned
+        onAuctionNFTs[_nftId] = true; //selected nft is now being auctioned
         auctionID = auctionID + 1;
         emit auctionEvent(msg.sender, auctionID, _nftId, block.timestamp + _endtime, _minimumBid);
     }
@@ -125,12 +122,7 @@ contract NFTAuctionMarket is ERC721URIStorage {
         emit bidPlaced(msg.sender, _auctionID, msg.value);
     }
 
-    // Move the last element to the deleted spot and remove it: this function will be used by the contract to update on auction nfts
-    function removeNFT(uint256 index) internal {
-        require(index < onAuctionNFTs.length);
-        onAuctionNFTs[index] = onAuctionNFTs[onAuctionNFTs.length - 1]; //change the last element with the one you want to delete
-        onAuctionNFTs.pop(); //remove the last element of the array
-    }
+    
 
     // End an auction and transfer the NFT to the highest bidder
     //only the nft seller/owner should be able to call this function
@@ -156,11 +148,8 @@ contract NFTAuctionMarket is ERC721URIStorage {
         }
 
         //object can be ipotetically be reauctioned. the important thing is to remove objects from on auctionNFT
-        for (uint256 i = 0; i < onAuctionNFTs.length; i++) {
-            if (onAuctionNFTs[i] == auction.nftId) {
-                removeNFT(onAuctionNFTs[i]);
-            }
-        }
+        onAuctionNFTs[auction.nftId] = false;
+        
         emit finalizedAuction(
             _auctionID,
             auction.highestBid,

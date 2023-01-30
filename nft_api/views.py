@@ -17,11 +17,12 @@ from .models import (
     NotFinalizedWithdraw,
 )
 
-alchemy_url = "https://eth-goerli.g.alchemy.com/v2/ZYFR3t4Vvlbkut-n9ZV4762wPxi4fwCh"
+# connect to eth node
+alchemy_url = "INSERT ALCHEMY ENDPOINT"
 w3 = Web3(Web3.HTTPProvider(alchemy_url))
 
 with open(
-    "INSERT YOUR CONTRACT.json HERE" #look into the build folder of the nft_market_brownie. Notice you'll have to compile and deploy the contract first.
+    "INSERT YOUR CONTRACT.json HERE"  # look into the build folder of the nft_market_brownie. Notice you'll have to compile and deploy the contract first.
 ) as f:
     auction_contract = json.load(f)
     abi = auction_contract["abi"]
@@ -40,16 +41,16 @@ def nft_creation_api(request):
     auction_event_filter = contract.events.auctionObjectCreation.createFilter(
         fromBlock=0
     )
-    #get all events
+    # get all events
     ao_events = auction_event_filter.get_all_entries()
-    #save args events in a list of dictionaries
+    # save args events in a list of dictionaries
     args_dict_list = [dict(event["args"]) for event in ao_events]
-    #create a list of properly formatted transaction hashes
+    # create a list of properly formatted transaction hashes
     tx_hashes = [event["transactionHash"].hex() for event in ao_events]
-    #and associate every args dictionary to its proper tx_hash key-value pair base on index order
+    # and associate every args dictionary to its proper tx_hash key-value pair base on index order
     for i, d in enumerate(args_dict_list):
         d["tx_hash"] = tx_hashes[i]
-    
+
     api = {"nft_mints": args_dict_list}
     for x in api["nft_mints"]:
         # do nothing if a record of the event is already stored in mongo db
