@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/token/ERC721/ERC721.sol";
 import "@openzeppelin/contracts/token/common/ERC2981.sol";
 
 //This contract let you mint your NFT and make it possible to auction it
-contract NFTAuctionMarket is ERC721URIStorage, ERC2981 {
+contract RoyalNFTAuctionMarket is ERC721URIStorage, ERC2981 {
     mapping(uint256 => Auction) public auctions; //map auction id to auction status
     uint256 public auctionID; //if AuctionID > 1: created_auctions = AuctionID -1
     uint256 public tokenCounter; //track NFT counter

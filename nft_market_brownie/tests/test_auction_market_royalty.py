@@ -1,4 +1,4 @@
-from brownie import NFTAuctionMarket
+from brownie import RoyalNFTAuctionMarket
 from scripts.helpful_scripts import get_account
 from brownie.network.state import Chain
 
@@ -13,7 +13,7 @@ def test_deploy():
     # arrange
     account = get_account(0)
     # act
-    nft_auction_market = NFTAuctionMarket.deploy({"from": account})
+    nft_auction_market = RoyalNFTAuctionMarket.deploy({"from": account})
     token_counter = nft_auction_market.tokenCounter({"from": account})
     expected = 0
     # assert
@@ -24,7 +24,7 @@ def test_create_nft():
     # arrange
     account = get_account(0)
     # act
-    nft_auction_market = NFTAuctionMarket.deploy({"from": account})
+    nft_auction_market = RoyalNFTAuctionMarket.deploy({"from": account})
     create_nft = nft_auction_market.createAuctionObject("uri_sample", {"from": account})
     create_nft.wait(1)
     expected_owner = account
@@ -38,7 +38,7 @@ def test_auction_creation():
     # arrange
     seller_account = get_account(0)
     bidder_account = get_account(2)
-    nft_auction_market = NFTAuctionMarket.deploy({"from": seller_account})
+    nft_auction_market = RoyalNFTAuctionMarket.deploy({"from": seller_account})
     # act:
     # -create nft
     nft = nft_auction_market.createAuctionObject("uri_sample", {"from": seller_account})
@@ -58,7 +58,7 @@ def test_bid():
     bidder_account = get_account(4)
     seller_account = get_account(3)
     # act
-    nft_auction_market = NFTAuctionMarket.deploy({"from": seller_account})
+    nft_auction_market = RoyalNFTAuctionMarket.deploy({"from": seller_account})
     nft = nft_auction_market.createAuctionObject("uri_sample", {"from": seller_account})
     nft_id = (nft_auction_market.tokenCounter({"from": seller_account})) - 1
     auction = nft_auction_market.startAuction(
@@ -73,31 +73,39 @@ def test_bid():
     assert auction_object["highestBid"] == amount
 
 
-def test_end_auction():
+def test_end_auction_royalties():
     # arrange
-    seller_account = get_account(1)
-    bidder_account = get_account(2)
-    initial_balance = seller_account.balance()
+    creator = get_account(1)  # creator account
+    first_buyer = get_account(2)  # second owner who will sell again
+    second_buyer = get_account(3)
+    initial_balance = creator.balance()
     # act
-    nft_auction_market = NFTAuctionMarket.deploy({"from": get_account(3)})
+    nft_auction_market = RoyalNFTAuctionMarket.deploy({"from": get_account(3)})
     # create nft
-    nft = nft_auction_market.createAuctionObject("uri_sample", {"from": seller_account})
-    nft_id = (nft_auction_market.tokenCounter({"from": seller_account})) - 1
+    nft = nft_auction_market.createAuctionObject("uri_sample", {"from": creator})
+    nft_id = (nft_auction_market.tokenCounter({"from": creator})) - 1
     # create auction
-    auction = nft_auction_market.startAuction(nft_id, 20, 100, {"from": seller_account})
+    auction = nft_auction_market.startAuction(nft_id, 20, 100, {"from": creator})
     auctionID = nft_auction_market.auctionID() - 1
     # bid on auction
     amount = 1e18
-    nft_auction_market.bid(auctionID, {"from": bidder_account, "amount": amount})
-
+    nft_auction_market.bid(auctionID, {"from": first_buyer, "amount": amount})
     chain.sleep(1000)
     chain.mine()
-    nft_auction_market.endAuction(auctionID, {"from": seller_account})
+    nft_auction_market.endAuction(auctionID, {"from": creator})
     updated = nft_auction_market.auctions(auctionID)
-    updated_balance = get_account(1).balance()
+    balance = get_account(1).balance()
+    second_auction = auction = nft_auction_market.startAuction(
+        nft_id, 20, 100, {"from": first_buyer}
+    )
+    nft_auction_market.bid(1, {"from": second_buyer, "amount": amount})
+    chain.sleep(1000)
+    chain.mine()
+    nft_auction_market.endAuction(1, {"from": first_buyer})
+    creator_final_balance = get_account(1).balance()
 
     assert updated["ended"] == True
-    assert seller_account.balance() == updated_balance
+    assert creator_final_balance == balance + 20000000000000000  # 0.02 eth
 
 
 def test_withdraw_overbidden():
@@ -105,7 +113,7 @@ def test_withdraw_overbidden():
     seller_account = get_account(1)
     bidder_account = get_account(2)
     overbidder_account = get_account(3)
-    nft_auction_market = NFTAuctionMarket.deploy({"from": get_account(1)})
+    nft_auction_market = RoyalNFTAuctionMarket.deploy({"from": get_account(1)})
     # create nft
     nft = nft_auction_market.createAuctionObject("uri_sample", {"from": seller_account})
     nft_id = (nft_auction_market.tokenCounter({"from": seller_account})) - 1
@@ -131,7 +139,7 @@ def test_withdraw_not_finalized():
     seller_account = get_account(1)
     bidder_account = get_account(2)
     initial_balance = bidder_account.balance()
-    nft_auction_market = NFTAuctionMarket.deploy({"from": get_account(1)})
+    nft_auction_market = RoyalNFTAuctionMarket.deploy({"from": get_account(1)})
     # create nft
     nft = nft_auction_market.createAuctionObject("uri_sample", {"from": seller_account})
     nft_id = (nft_auction_market.tokenCounter({"from": seller_account})) - 1
