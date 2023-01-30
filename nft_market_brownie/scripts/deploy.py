@@ -1,4 +1,4 @@
-from brownie import NFTAuctionMarket
+from brownie import NFTAuctionMarket, auctionMarketRoyalty
 from scripts.helpful_scripts import get_account, accounts, config
 import time
 from brownie.network.state import Chain
@@ -13,10 +13,16 @@ import datetime
 
 chain = Chain()
 
-#you can insert a contract directly deployed by you, this is just a sample of an already deployed contract
+# you can insert a contract directly deployed by you, this is just a sample of an already deployed contract
 
 contract = "INSERT CONTRACT ADDRESS HERE"
 LOCAL_BLOCKCHAIN_ENVIRONMENTS = ["development", "ganache-prova"]
+
+
+# Every function is by default ready to use a NFTAuctionMarket contract
+# but if the user prefers to use auctionMarketRoyalty contract(the same contract with royalties fee added),
+# he/she can simply change the deployed contract variable properly
+# i.e. nft_auction_market = auctionMarketRoyalty.deploy() or = auctionMarketRoyalty.at()
 
 
 def deploy_contract():
