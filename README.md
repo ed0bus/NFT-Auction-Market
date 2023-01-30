@@ -7,7 +7,9 @@ This project has been made by Edoardo Bussani.
 
 ## General info
 The scope of the project is to create a smart contract auction market that lets the users auction any asset in the same way of a physical auction.
+There are two alternatives user can work with: first one is a standard NFT auction market and the second one is a NFT auction market based on the ERC2981 standard. This means that everytime an NFT will be resold to someone who is not the original author/creator of the collectible, a 2% of the highest bid will be sent to the creator as a royalty fee.  
 The user can interact with or deploy the contract using Remix or locally. To interact with it directly from your terminal follow the instructions below.
+
 Contract functions are the following:
 
 * Mint an NFT Auction Object (You can add a well structured URI using the script in the scripts folder)
@@ -16,8 +18,6 @@ Contract functions are the following:
 * Withdraw overbidden bids (withdraw overbidden amounts)
 * End Auction (callable only by the auctioneer)
 * Withdraw not finalized (if the auctioneer does not finalized the auction within 24 hours after the expiration time, the winner can take his funds back)
-
-
 
 ## Technologies
 Project is created with:
